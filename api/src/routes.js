@@ -4,11 +4,7 @@ import { CompressionTypes } from 'kafkajs';
 const routes = express.Router();
 
 routes.post('/certifications', async (req, res) => {
-  const message = {
-    user: { id: 1, name: 'Marcos Felippe' },
-    course: 'Kafka e Node.js',
-    grade: 10,
-  };
+  const message = req.body;
 
   // Chamar micro serviço
   await req.producer.send({
