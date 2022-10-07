@@ -1,4 +1,5 @@
 import { Kafka } from 'kafkajs';
+import ProducerService from './KafkaService/producer';
 
 const kafka = new Kafka({
   brokers: ['localhost:9092'],
@@ -17,19 +18,22 @@ async function run() {
   await producer.connect();
 
   await consumer.run({
+
     eachMessage: async ({ topic, partition, message }) => {
+      
       const prefix = `${topic}[${partition} | ${message.offset}] / ${message.timestamp}`;
       console.log(`- ${prefix} ${message.key} # ${message.value}`);
 
       const payload = JSON.parse(message.value);
 
-      producer.send({
-        topic: 'certification-response',
-        messages: [
-          { value: `Certificado do usuário ${payload.user.name} do curso ${payload.course} gerado!` }
-        ]
-      });
+      const topicProducer = 'certification-response';
+      const messageProducer = `Certificado do usuário ${payload.user.name} do curso ${payload.course} gerado!`;
+
+      const producerService = new ProducerService();
+
+      producerService.sendMessage(messageProducer, producer, topicProducer);
     },
+
   });
 }
 
